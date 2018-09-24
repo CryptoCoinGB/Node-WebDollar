@@ -46,20 +46,33 @@ class InterfaceBlockchainBlockDataTransactions {
 
     }
 
+    markBlockDataTransactionsToBeInPending(){
+
+        if (this.pendingTransactionsWereIncluded)
+            return;
+
+        for (let i=0; i<this.transactions.length; i++) {
+            if (this.transactions[i].pendingTransactionsIncluded === undefined) this.transactions[i].pendingTransactionsIncluded = 0;
+            this.transactions[i].pendingTransactionsIncluded++;
+        }
+
+        this.pendingTransactionsWereIncluded = true;
+
+    }
+
     destroyBlockDataTransactions(){
 
         for (let i=0; i<this.transactions.length; i++) {
 
-            if (this.pendingTransactionsWereIncluded)
-                this.transactions[i].pendingTransactionsIncluded--;
-
-            if ( Blockchain.blockchain.transactions.pendingQueue.findPendingTransaction(this.transactions[i]) === -1 )
-                this.transactions[i].destroyTransaction();
+            this.transactions[i].destroyTransaction(this.pendingTransactionsWereIncluded);
 
             this.transactions[i] = undefined;
+            this.transactions.splice(i,1);
+            i--;
 
         }
 
+        this.transactions = [];
         delete this.pendingTransactionsWereIncluded;
 
     }
@@ -180,6 +193,8 @@ class InterfaceBlockchainBlockDataTransactions {
 
                 this.transactions.push(transaction);
             }
+
+            this.transactionsLoaded = true;
         }
 
         return offset;
@@ -216,6 +231,16 @@ class InterfaceBlockchainBlockDataTransactions {
 
         return fee;
     }
+
+    freeTransactionsFromMemory(){
+
+        if (consts.SETTINGS.FREE_TRANSACTIONS_FROM_MEMORY_MAX_NUMBER <= 0) return;
+
+        this.destroyBlockDataTransactions(true);
+        delete this.transactionsLoaded;
+
+    }
+
 
 }
 
