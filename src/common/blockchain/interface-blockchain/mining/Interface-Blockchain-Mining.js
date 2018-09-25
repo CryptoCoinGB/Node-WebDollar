@@ -281,6 +281,7 @@ class InterfaceBlockchainMining extends  InterfaceBlockchainMiningBasic{
 
         } catch (exception){
             console.error("Error _mineNonces", "nonce", nonce, start, end );
+            this.resetForced = true;
         }
 
         return {

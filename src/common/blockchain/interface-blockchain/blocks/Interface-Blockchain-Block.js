@@ -353,6 +353,7 @@ class InterfaceBlockchainBlock {
                                      this.hash,
                                      Serialization.serializeNumber4Bytes( this.nonce ),
                                      this.computedBlockPrefix,
+
                                   ]);
 
         return data;
